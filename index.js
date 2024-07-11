@@ -8,8 +8,11 @@ const port = process.env.PORT || 3000;
 
 // Crear el directorio `uploads` si no existe
 const uploadsDir = path.join(__dirname, 'uploads');
-if (!fs.existsSync(uploadsDir)){
+if (!fs.existsSync(uploadsDir)) {
     fs.mkdirSync(uploadsDir, { recursive: true });
+    console.log('Uploads directory created');
+} else {
+    console.log('Uploads directory already exists');
 }
 
 const storage = multer.diskStorage({
@@ -27,6 +30,7 @@ app.use(express.static('public'));
 
 app.post('/upload', upload.single('audiofile'), async (req, res) => {
   if (req.file) {
+    console.log(`File uploaded to: ${req.file.path}`);
     // Procesamiento del archivo y predicción
     try {
       const audioFilePath = req.file.path;
