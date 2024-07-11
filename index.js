@@ -4,7 +4,7 @@ const path = require('path');
 const fs = require('fs');
 const tf = require('@tensorflow/tfjs-node');
 const wav = require('node-wav');
-const SoxCommand = require('sox-audio');
+const { exec } = require('child_process');
 const app = express();
 const port = process.env.PORT || 3000;
 
@@ -81,13 +81,13 @@ async function extractFeaturesFromAudio(filePath) {
     // Remuestrear a 1 kHz usando Sox
     const resampledFilePath = filePath.replace('.wav', '_resampled.wav');
     await new Promise((resolve, reject) => {
-      SoxCommand()
-        .input(filePath)
-        .output(resampledFilePath)
-        .outputSampleRate(targetSampleRate)
-        .run()
-        .on('end', resolve)
-        .on('error', reject);
+      exec(`sox ${filePath} -r ${targetSampleRate} ${resampledFilePath}`, (error, stdout, stderr) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve();
+        }
+      });
     });
 
     const resampledBuffer = fs.readFileSync(resampledFilePath);
